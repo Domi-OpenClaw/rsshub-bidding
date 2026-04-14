@@ -31,7 +31,7 @@ jobs:
         run: playwright install chromium
 
       - name: Run fetcher
-        run: python3 fetch_playwright.py
+        run: python3 fetch_chinabidding_com.py
 
       - name: Generate index.html
         run: |
@@ -47,9 +47,7 @@ jobs:
               desc = re.sub(r"<[^>]+>", "", entry.get("summary", ""))[:100]
               source = getattr(entry, "source", "未知")
               pub = entry.get("published", "")[:16]
-              items_html += f\'<li><a href="{link}" target="_blank">{title}</a>
-                <span class="source">[{source}]</span> <span class="date">{pub}</span>
-                <p class="desc">{desc}</p></li>\'
+              items_html = f'<li><a href="{link}" target="_blank">{title}</a><span class="source">[{source}]</span> <span class="date">{pub}</span><p class="desc">{desc}</p></li>' + items_html
 
           html = f"""<!DOCTYPE html>
 <html lang="zh"><head>
