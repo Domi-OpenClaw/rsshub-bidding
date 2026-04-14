@@ -5,6 +5,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   test-bjx:
     runs-on: ubuntu-latest
@@ -25,20 +28,15 @@ jobs:
           echo "RSS Items: $ITEMS" >> bjx_report.txt
           echo "WAF Challenge: $WAF" >> bjx_report.txt
           echo "" >> bjx_report.txt
-          echo "=== XML Preview (first 1000 chars) ===" >> bjx_report.txt
           head -c 1000 bjx_result.xml >> bjx_report.txt
           
-          echo "=== Console Output ==="
-          echo "Runner IP: $RUNNER_IP"
-          echo "HTTP Code: $HTTP_CODE"  
-          echo "RSS Items found: $ITEMS"
-          echo "WAF Challenge: $WAF"
+          echo "=== Console ==="
+          echo "Runner IP: $RUNNER_IP | HTTP: $HTTP_CODE | Items: $ITEMS | WAF: $WAF"
 
       - name: Commit result to repo
         run: |
           git config user.name "Domi Bot"
           git config user.email "domi@openclaw.ai"
           git add bjx_report.txt bjx_result.xml 2>/dev/null || true
-          git diff --cached --quiet && echo "No changes to commit" || \
-            git commit -m "chore: bjx runner test result $(date +%Y%m%d%H%M%S)" && \
-            git push
+          git diff --cached --quiet && echo "No changes" || \
+            (git commit -m "chore: bjx runner result $(date +%Y%m%d%H%M%S)" && git push)
