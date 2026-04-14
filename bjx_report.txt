@@ -1,8 +1,0 @@
-=== GitHub Runner bjx.com.cn Test ===
-Runner IP: 172.172.87.73
-HTTP Code: 200
-RSS Items: 0
-0
-WAF Challenge: 1
-
-<!doctypehtml><meta charset="UTF-8"><meta name="aliyun_waf_aa"content="ff926c7f07e45e2e487a29a6197d3460"><meta name="aliyun_waf_bb"content="eade71455e2ad9c6d08b82bc7d98df8c"><title></title><meta name="viewport"content="width=device-width,initial-scale=1"><style type="text/css">body,div,html,p,span{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:0 0}body{background:#fff}</style><script>void 0===window.console&&(console={log:function(){}}),window._waf_is_mobile=!1,(i=>{(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(i)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|b
