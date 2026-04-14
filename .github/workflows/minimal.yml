@@ -9,18 +9,67 @@ jobs:
   test-bjx:
     runs-on: ubuntu-latest
     steps:
-      - name: Check runner IP
-        run: |
-          echo "Runner IP: $(curl -s https://api.ipify.org)"
-
       - name: Test bjx.com.cn RSS
+        id: bjx
         run: |
-          echo "=== GitHub Runner -> bjx.com.cn ==="
           HTTP_CODE=$(curl -s -o /tmp/bjx.xml -w "%{http_code}" \
             "https://news.bjx.com.cn/rss.php?col=409" --max-time 15 -L)
+          ITEMS=$(grep -c '<item>' /tmp/bjx.xml || echo 0)
+          WAF=$(grep -c 'renderData\|aliyun_waf\|Verification' /tmp/bjx.xml || echo 0)
+          echo "http_code=$HTTP_CODE" >> $GITHUB_ENV
+          echo "items=$ITEMS" >> $GITHUB_ENV
+          echo "waf=$WAF" >> $GITHUB_ENV
+          echo "=== RESULT ==="
           echo "HTTP_CODE: $HTTP_CODE"
-          echo "File_size: $(wc -c < /tmp/bjx.xml) bytes"
-          echo "Item_count: $(grep -c '<item>' /tmp/bjx.xml || echo 0)"
-          echo "Has_WAF: $(grep -c 'renderData\|aliyun_waf\|Verification' /tmp/bjx.xml || echo 0)"
-          echo ""
-          head -c 500 /tmp/bjx.xml
+          echo "Items: $ITEMS"
+          echo "WAF Challenge: $WAF"
+          cat /tmp/bjx.xml | head -c 600
+          
+      - name: Upload result file
+        run: |
+          echo "HTTP_CODE=${{ env.http_code }}" > /tmp/result.txt
+          echo "Items=${{ env.items }}" >> /tmp/result.txt
+          echo "WAF=${{ env.waf }}" >> /tmp/result.txt
+          curl -s https://api.ipify.org >> /tmp/result.txt
+          # 写入 repo（通过 API）
+          python3 << 'PYEOF'
+import urllib.request, json, base64
+          
+token = "${{ github.token }}"
+repo = "Domi-OpenClaw/rsshub-bidding"
+          
+# 读取 result.txt
+with open("/tmp/result.txt") as f:
+    content = f.read()
+          
+# 上传到 repo
+url = f"https://api.github.com/repos/{repo}/contents/result.txt"
+headers = {
+    "Authorization": f"token {token}",
+    "Accept": "application/vnd.github.v3+json",
+    "Content-Type": "application/json"
+}
+          
+# 获取当前 SHA
+req = urllib.request.Request(url, headers=headers)
+try:
+    resp = urllib.request.urlopen(req)
+    current = json.loads(resp.read())
+    sha = current['sha']
+except:
+    sha = None
+          
+data = json.dumps({
+    "message": "chore: update bjx test result",
+    "content": base64.b64encode(content.encode()).decode(),
+    "sha": sha
+}).encode()
+          
+req2 = urllib.request.Request(url, data=data, headers=headers, method="PUT")
+try:
+    resp2 = urllib.request.urlopen(req2)
+    print(f"Uploaded: {resp2.status}")
+    print(resp2.read().decode()[:200])
+except Exception as e:
+    print(f"Upload failed: {e}")
+PYEOF
