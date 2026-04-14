@@ -14,7 +14,7 @@ permissions:
 jobs:
   fetch-and-generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout
@@ -26,10 +26,12 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install feedparser
+        run: pip install playwright feedparser
+      - name: Install Playwright Chromium
+        run: playwright install chromium
 
       - name: Run fetcher
-        run: python3 fetch_all.py
+        run: python3 fetch_playwright.py
 
       - name: Generate index.html
         run: |
