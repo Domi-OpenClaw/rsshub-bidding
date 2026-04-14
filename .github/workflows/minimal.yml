@@ -6,11 +6,21 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  test-bjx:
     runs-on: ubuntu-latest
     steps:
-      - name: Echo test
+      - name: Check runner IP
         run: |
-          echo "Hello from GitHub Actions!"
           echo "Runner IP: $(curl -s https://api.ipify.org)"
-          echo "Test complete"
+
+      - name: Test bjx.com.cn RSS
+        run: |
+          echo "=== GitHub Runner -> bjx.com.cn ==="
+          HTTP_CODE=$(curl -s -o /tmp/bjx.xml -w "%{http_code}" \
+            "https://news.bjx.com.cn/rss.php?col=409" --max-time 15 -L)
+          echo "HTTP_CODE: $HTTP_CODE"
+          echo "File_size: $(wc -c < /tmp/bjx.xml) bytes"
+          echo "Item_count: $(grep -c '<item>' /tmp/bjx.xml || echo 0)"
+          echo "Has_WAF: $(grep -c 'renderData\|aliyun_waf\|Verification' /tmp/bjx.xml || echo 0)"
+          echo ""
+          head -c 500 /tmp/bjx.xml
