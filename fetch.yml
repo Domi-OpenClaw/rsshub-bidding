@@ -2,11 +2,8 @@ name: Fetch Bidding RSS
 
 on:
   schedule:
-    # 每天 07:00 北京时间 = UTC 23:00
-    - cron: '0 23 * * *'
-  workflow_dispatch:  # 支持手动触发
-  push:
-    branches: [main]
+    - cron: '0 23 * * *'   # 每天 07:00 北京时间
+  workflow_dispatch:
 
 jobs:
   fetch-and-generate:
@@ -22,9 +19,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          pip install feedparser
+      - name: Install feedparser
+        run: pip install feedparser
 
       - name: Run fetcher
         run: python3 fetch_all.py
@@ -34,42 +30,18 @@ jobs:
           python3 << 'PYEOF'
           import feedparser, re
           from datetime import datetime
-
           feed = feedparser.parse("bidding.xml")
-          items_html = ""
-          for entry in feed.entries[:50]:
-              title = entry.get("title", "无标题")
-              link = entry.get("link", "#")
-              desc = re.sub(r"<[^>]+>", "", entry.get("summary", ""))[:100]
-              source = getattr(entry, "source", "未知")
-              pub = entry.get("published", "")[:16]
-              items_html += f'''<li><a href="{link}" target="_blank">{title}</a>
-                <span class="source">[{source}]</span> <span class="date">{pub}</span>
-                <p class="desc">{desc}</p></li>'''
-
-          html = f"""<!DOCTYPE html>
-<html lang="zh"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>招投标RSS聚合</title>
-<style>
-body{{font-family:system-ui;max-width:900px;margin:2rem auto;padding:0 1rem}}
-h1{{border-bottom:2px solid #1a73e8;padding-bottom:.5rem}}
-ul{{list-style:none;padding:0}}
-li{{padding:.75rem;border-bottom:1px solid #eee}}
-a{{color:#1a73e8;text-decoration:none;font-weight:500}}
-a:hover{{text-decoration:underline}}
-.source{{background:#e8f0fe;color:#1967d2;padding:2px 6px;border-radius:4px;font-size:.85em;margin-left:8px}}
-.date{{color:#888;font-size:.85em;margin-left:8px}}
-.desc{{color:#555;font-size:.9em;margin:4px 0 0 0}}
-.update{{color:#888;margin-bottom:1rem}}
-</style></head><body>
-<h1>招投标RSS聚合</h1>
-<p class="update">更新时间：{datetime.now().strftime('%Y-%m-%d %H:%M')} · 共 {len(feed.entries)} 条</p>
-<ul>{items_html}</ul>
-</body></html>"""
-          with open("index.html", "w") as f:
-              f.write(html)
+          items = ""
+          for e in feed.entries[:50]:
+              t = e.get("title","无标题")
+              l = e.get("link","#")
+              d = re.sub(r"<[^>]+>","",e.get("summary",""))[:100]
+              s = getattr(e,"source","未知")
+              p = e.get("published","")[:16]
+              items += f'<li><a href="{l}" target="_blank">{t}</a> <span class="s">[{s}]</span> <span class="d">{p}</span><p>{d}</p></li>'
+          html = f"<!DOCTYPE html><html><head><meta charset='UTF-8'><title>招投标RSS</title><style>body{{font-family:system-ui;max-width:900px;margin:2rem auto;padding:0 1rem}}h1{{border-bottom:2px solid #1a73e8;padding-bottom:.5rem}}ul{{list-style:none;padding:0}}li{{padding:.75rem;border-bottom:1px solid #eee}}a{{color:#1a73e8}} .s{{background:#e8f0fe;color:#1967d2;padding:2px 6px;border-radius:4px;font-size:.85em;margin-left:8px}} .d{{color:#888;font-size:.85em;margin-left:8px}}p{{color:#555;font-size:.9em;margin:4px 0 0}}#up{{color:#888;margin-bottom:1rem}}</style></head><body><h1>招投标RSS聚合</h1><p id='up'>更新时间：{datetime.now().strftime('%Y-%m-%d %H:%M')} · 共 {len(feed.entries)} 条</p><ul>{items}</ul></body></html>"
+          with open("index.html","w") as f: f.write(html)
+          PYEOF
 
       - name: Commit & Push
         run: |
