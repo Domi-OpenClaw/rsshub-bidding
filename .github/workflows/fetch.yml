@@ -2,8 +2,9 @@ name: Fetch Bidding RSS
 
 on:
   schedule:
-    # 每天 07:00 北京时间 = UTC 23:00
     - cron: '0 23 * * *'
+  repository_dispatch:
+    types: [bidding-update]
   workflow_dispatch:
   push:
     branches: [main]
@@ -27,8 +28,24 @@ jobs:
 
       - name: Install dependencies
         run: pip install playwright feedparser
+
       - name: Install Playwright Chromium
         run: playwright install chromium
+
+      - name: Check runner IP
+        run: curl -s https://api.ipify.org && echo ""
+
+      - name: Test bjx.com.cn RSS access
+        run: |
+          echo "=== Testing bjx.com.cn from GitHub runner ==="
+          HTTP_CODE=$(curl -s -o /tmp/bjx_rss.xml -w "%{http_code}" \
+            "https://news.bjx.com.cn/rss.php?col=409" --max-time 15 -L)
+          echo "HTTP: $HTTP_CODE"
+          echo "Size: $(wc -c < /tmp/bjx_rss.xml) bytes"
+          echo "Item count: $(grep -c '<item>' /tmp/bjx_rss.xml || echo 0)"
+          echo "Has WAF: $(grep -c 'renderData\|aliyun_waf\|Verification' /tmp/bjx_rss.xml || echo 0)"
+          echo "First 300 chars:"
+          head -c 300 /tmp/bjx_rss.xml
 
       - name: Run fetcher
         run: python3 fetch_chinabidding_com.py
@@ -72,6 +89,7 @@ a:hover{{text-decoration:underline}}
 </body></html>"""
           with open("index.html", "w") as f:
               f.write(html)
+          print(f"Generated index.html with {len(feed.entries)} items")
 
       - name: Commit & Push
         run: |
