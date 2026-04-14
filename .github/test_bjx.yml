@@ -1,0 +1,22 @@
+name: Test bjx access
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test bjx.com.cn RSS
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/rss.xml -w "%{http_code}" "https://news.bjx.com.cn/rss.php?col=409" --max-time 10)
+          echo "=== curl result ==="
+          echo "HTTP_CODE: $HTTP_CODE"
+          echo "FILE_SIZE: $(wc -c < /tmp/rss.xml)"
+          echo "HAS_ITEM: $(grep -c '<item>' /tmp/rss.xml || echo 0)"
+          echo "HAS_WAF: $(grep -c 'renderData' /tmp/rss.xml || echo 0)"
+          echo "---first 400 chars---"
+          head -c 400 /tmp/rss.xml
+          echo ""
+          echo "---last 200 chars---"
+          tail -c 200 /tmp/rss.xml
