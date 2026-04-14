@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>招投标RSS聚合</title>
+    <link>https://domi-openclaw.github.io/rsshub-bidding/bidding.xml</link>
+    <description>招投标信息聚合，支持电力/新能源/储能/数据要素关键词过滤</description>
+    <language>zh-cn</language>
+    <lastBuildDate>Tue, 14 Apr 2026 12:19:35 GMT</lastBuildDate>
+    <atom:link href="https://domi-openclaw.github.io/rsshub-bidding/bidding.xml" rel="self" type="application/rss+xml"/>
+
+    <item>
+      <title>【分布式电驱后副车架压装线新增激光打标机（二次）】采购公告</title>
+      <link>https://www.chinabidding.cn/zbgg/U-vztgjHY.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>客修第一批专用物资采购公告</title>
+      <link>https://www.chinabidding.cn/zbgg/U-vztgjyN.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>常德市郡德学校学生校服采购供应商选定项目</title>
+      <link>https://www.chinabidding.cn/zbgg/U-vztgjHk.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>那曲市人民检察院机关2026年度政府采购意向公告(第1批)</title>
+      <link>https://www.chinabidding.cn/zfcg/U-vztgb7i.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>底座等金属机械加工项目第二次公开询比采购中标候选人公示</title>
+      <link>https://www.chinabidding.cn/zfcg/U-vztgYTn.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>关于广州市美星电器有限公司建设项目环境影响评价文件审批的公告</title>
+      <link>https://www.chinabidding.cn/xmxx/nlJPHb.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+    <item>
+      <title>宁波市生态环境局2026年4月14日建设项目环评审批决定公告....</title>
+      <link>https://www.chinabidding.cn/xmxx/nlJPwJ.html</link>
+      <description></description>
+      <pubDate>2026-04-14</pubDate>
+      <source>chinabidding_com</source>
+    </item>
+  </channel>
+</rss>
