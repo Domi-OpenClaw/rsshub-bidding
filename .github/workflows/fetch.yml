@@ -4,9 +4,12 @@ on:
   schedule:
     # 每天 07:00 北京时间 = UTC 23:00
     - cron: '0 23 * * *'
-  workflow_dispatch:  # 支持手动触发
+  workflow_dispatch:
   push:
     branches: [main]
+
+permissions:
+  contents: write
 
 jobs:
   fetch-and-generate:
@@ -23,8 +26,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install feedparser
+        run: pip install feedparser
 
       - name: Run fetcher
         run: python3 fetch_all.py
@@ -43,9 +45,9 @@ jobs:
               desc = re.sub(r"<[^>]+>", "", entry.get("summary", ""))[:100]
               source = getattr(entry, "source", "未知")
               pub = entry.get("published", "")[:16]
-              items_html += f'''<li><a href="{link}" target="_blank">{title}</a>
+              items_html += f\'<li><a href="{link}" target="_blank">{title}</a>
                 <span class="source">[{source}]</span> <span class="date">{pub}</span>
-                <p class="desc">{desc}</p></li>'''
+                <p class="desc">{desc}</p></li>\'
 
           html = f"""<!DOCTYPE html>
 <html lang="zh"><head>
