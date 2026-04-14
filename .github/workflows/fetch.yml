@@ -1,0 +1,107 @@
+name: Fetch Bidding RSS
+
+on:
+  schedule:
+    # 每天3次：早(7:00)、中(12:00)、晚(18:00) 北京时间 = UTC 23:00、04:00、10:00
+    - cron: '0 23 * * *'   # 07:00 CST
+    - cron: '0 4 * * *'    # 12:00 CST
+    - cron: '0 10 * * *'   # 18:00 CST
+  workflow_dispatch:  # 支持手动触发
+  push:
+    branches: [main]  # 推送时也跑一次验证
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install feedparser requests
+
+      - name: Run fetcher
+        run: |
+          python3 fetch_all.py
+
+      - name: Commit & Push
+        run: |
+          git config user.name "Domi Bot"
+          git config user.email "domi@openclaw.ai"
+          git add bidding.xml
+          git diff --cached --quiet || git commit -m "chore: update bidding RSS $(date +'%Y-%m-%d %H:%M')"
+          git push
+
+  # 生成纯静态HTML预览页
+  generate-index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: fetch
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate index.html
+        run: |
+          python3 << 'PYEOF'
+          import feedparser, re
+          from datetime import datetime
+
+          feed = feedparser.parse("bidding.xml")
+          items_html = ""
+          for entry in feed.entries[:50]:
+              title = entry.get("title", "无标题")
+              link = entry.get("link", "#")
+              desc = re.sub(r"<[^>]+>", "", entry.get("summary", ""))[:100]
+              source = getattr(entry, "source", "未知")
+              pub = entry.get("published", "")[:16]
+              items_html += f'''<li><a href="{link}" target="_blank">{title}</a>
+                <span class="source">[{source}]</span> <span class="date">{pub}</span>
+                <p class="desc">{desc}</p></li>'''
+
+          html = f"""<!DOCTYPE html>
+<html lang="zh"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>招投标RSS聚合</title>
+<style>
+body{{font-family:system-ui;max-width:900px;margin:2rem auto;padding:0 1rem}}
+h1{{border-bottom:2px solid #1a73e8;padding-bottom:.5rem}}
+ul{{list-style:none;padding:0}}
+li{{padding:.75rem;border-bottom:1px solid #eee}}
+a{{color:#1a73e8;text-decoration:none;font-weight:500}}
+a:hover{{text-decoration:underline}}
+.source{{background:#e8f0fe;color:#1967d2;padding:2px 6px;border-radius:4px;font-size:.85em;margin-left:8px}}
+.date{{color:#888;font-size:.85em;margin-left:8px}}
+.desc{{color:#555;font-size:.9em;margin:4px 0 0 0}}
+.update{{color:#888;margin-bottom:1rem}}
+</style></head><body>
+<h1>招投标RSS聚合</h1>
+<p class="update">更新时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} · 共 {len(feed.entries)} 条</p>
+<ul>{items_html}</ul>
+</body></html>"""
+          with open("index.html", "w") as f:
+              f.write(html)
+          print(f"生成 index.html，共 {len(feed.entries)} 条")
+
+      - name: Commit index.html
+        run: |
+          git config user.name "Domi Bot"
+          git config user.email "domi@openclaw.ai"
+          git add index.html
+          git diff --cached --quiet || git commit -m "chore: update index $(date +'%Y-%m-%d %H:%M')"
+          git push
